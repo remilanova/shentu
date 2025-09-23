@@ -1,20 +1,20 @@
 'use server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 
-export function createClient(cookieStore) {
-  const cookie = cookieStore || cookies()
+import { createServerClient } from '@supabase/ssr'
+import type { Cookies } from 'next/headers'
+
+export function createClient(cookies: Cookies) {
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: (name) => cookie.get(name)?.value,
-        set: (name, value, options) => {
-          cookie.set(name, value, options)
+        get: (name: string) => cookies.get(name)?.value,
+        set: (name: string, value: string, options: any) => {
+          cookies.set(name, value, options)
         },
-        remove: (name, options) => {
-          cookie.set(name, '', { ...options, maxAge: 0 })
+        remove: (name: string, options: any) => {
+          cookies.set(name, '', { ...options, maxAge: 0 })
         }
       }
     }
