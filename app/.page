@@ -1,0 +1,61 @@
+
+# Shentu – Мини сайт (Форма + Админ)
+
+Това е готов, **статичен** пакет за качване в Netlify и/или GitHub Pages.
+Включва:
+- `index.html` – мини форма „Здравна карта“ с checkbox за съгласие; праща POST заявка към Apps Script Web App
+- `admin.html` – лек админ панел (read‑only), който чете данните от Google Sheet през gviz API
+- `js/app.js` и `js/admin.js`
+- `css/styles.css`
+
+## 1) Настройки (важно)
+В `index.html` има две променливи, които вече са попълнени с твоите стойности:
+- `APP_SCRIPT_URL` → **https://script.google.com/macros/s/AKfycbwuGT5s1K60kvIlDUDCIkDd6zpmqwxvvorAIZjkpbFqhxxpx_utPyyidFNYgagoA9A/exec**
+- `SHEET_ID` → **1JEwJPARNb0X3lsaI9ExceKvaW5SBiFOPReApvueBK9E**
+
+Ако някога се променят, просто отвори `index.html` и замени стойностите в края на файла.
+
+## 2) Качване в GitHub
+1. В GitHub → **New Repository** → Name: `shentu-site` → Public/Private по избор → Create.
+2. Изтегли ZIP-а от този пакет и го **разархивирай** на компютъра.
+3. Отвори папката в VS Code (или File Explorer) и изпълни:
+   - Ако имаш Git:
+     ```bash
+     git init
+     git add .
+     git commit -m "Initial commit – Shentu site"
+     git branch -M main
+     git remote add origin https://github.com/ТВОЕТО_ПОТРЕБИТЕЛСКО_ИМЕ/shentu-site.git
+     git push -u origin main
+     ```
+   - Ако не искаш Git → В GitHub влез в репото → **Add file → Upload files** → качваш **цялата папка** (или ZIP-а, но тогава трябва да разархивираш в GitHub Codespaces).
+
+## 3) Включване към Netlify (автоматично деплойване)
+**Вариант А (препоръчителен):** от Netlify → **Add new site → Import an existing project** → избери GitHub → посочи `shentu-site` и без build команда (статичен сайт). Publish Directory: корена `/`.
+**Вариант Б (ръчно):** Netlify → **Add new site → Deploy manually** → качваш **съдържанието на папката** (не самата папка).
+
+## 4) Работата на формата
+- Потребителят попълва формата в `index.html`.
+- При „Изпрати“ скриптът изпраща `POST` **JSON** към `APP_SCRIPT_URL`, с включен `sheetId` и `timestamp`.
+- **Важно**: Apps Script Web App трябва да е публикуван **Anyone**/„Всеки с линка“ и да приема `POST` от произволни домейни (CORS). Ако има CORS проблем, в Apps Script добави в отговора заглавки:
+  ```js
+  ContentService.createTextOutput(JSON.stringify({ok:true}))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  ```
+
+## 5) Админ панел (read‑only, без логин)
+- `admin.html` използва gviz API, за да прочете първия лист от таблицата.
+- За да работи, таблицата трябва да е **Published to the web** или споделена „Anyone with the link – Viewer“.
+- Панелът има търсене, опресняване и експорт към CSV.
+
+## 6) Добавяне на логин (по-късно, ако решиш)
+Най-лесният начин без бекенд е проста „парола“ през URL параметър и локално съхранение (ниско ниво на защита). По‑сигурен вариант е Netlify Identity + Netlify Functions или Firebase Auth. Можем да го добавим на следващ етап.
+
+## 7) Чести проблеми
+- **Формата не изпраща**: провери дали Web App URL е активен и дали Apps Script връща `application/json` и CORS заглавки.
+- **Админът не зарежда**: провери споделянето на Google Sheet; публикувай листа публично (File → Share → Publish to web).
+- **Netlify показва стара версия**: при Вариант Б, качвай винаги **съдържанието** на папката; при Вариант А, натисни **Trigger deploy** или `git push`.
+
+Успех! :)
