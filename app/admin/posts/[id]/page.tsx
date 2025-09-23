@@ -22,9 +22,14 @@ export default async function EditPost({ params }){
         <label><input type="checkbox" name="is_published" defaultChecked={post?.is_published}/> Публикуван</label>
         <div className="grid two">
           <button type="submit">Запази</button>
-          <form action={`/admin/posts/${params.id}/delete`} method="post"><button>Изтрий</button></form>
-        </div>
-      </form>
+          <form action={`/admin/posts/${params.id}/update`} method="post" className="grid">
+  {/* полета … */}
+  <button type="submit">Запази</button>
+</form>
+
+<form action={`/admin/posts/${params.id}/delete`} method="post" style={{ marginTop: 12 }}>
+  <button>Изтрий</button>
+</form>
     </div>
   )
 }
