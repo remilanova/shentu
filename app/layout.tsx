@@ -1,3 +1,8 @@
+export const metadata = { title: 'Shentu', description: '...' }
+export default function RootLayout({ children }:{children:React.ReactNode}) {
+  return <html lang="bg"><body>{children}</body></html>
+}
+
 import './globals.css'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
