@@ -1,20 +1,24 @@
-'use server'
+// lib/supabase/server.ts
 import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { cookies as nextCookies, type Cookies } from 'next/headers'
 
-export function createClient(cookieStore) {
-  const cookie = cookieStore || cookies()
+export function createClient(cookieStore?: Cookies) {
+  const store = cookieStore ?? nextCookies()
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: (name) => cookie.get(name)?.value,
-        set: (name, value, options) => {
-          cookie.set(name, value, options)
+        // НОВИЯТ API -> няма get/set/remove, а getAll/setAll
+        getAll() {
+          return store.getAll().map(c => ({ name: c.name, value: c.value }))
         },
-        remove: (name, options) => {
-          cookie.set(name, '', { ...options, maxAge: 0 })
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // `options` идват от Supabase; Next cookies приемат същия shape
+            store.set(name, value, options as any)
+          })
         }
       }
     }
