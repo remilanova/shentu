@@ -1,6 +1,11 @@
 'use client'
 
 import * as React from "react";
+type Pet = { name: string; breed: string; age: string }
+type FormState = { pet: Pet; owner: { email: string } }
+
+const DEFAULT_PET: Pet = { name: '', breed: '', age: '' }
+const DEFAULT_OWNER = { email: '' }
 
 // === Config ===
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydTk_qbz2zdb4Vq08jIN-AkOOEfeW9WxK-w1P-8v11oJDc5OVOvqpRaRHdzs1TfCI4/exec"; // Apps Script webhook
@@ -19,6 +24,11 @@ function Btn(props) {
 
 function Section(props) {
   const { id, title, subtitle, center = true, children } = props || {};
+  const [form, setForm] = useState<FormState>({
+  pet: DEFAULT_PET,
+  owner: DEFAULT_OWNER,
+})
+
   return (
     <section id={id} className="py-12 md:py-16">
       {(title || subtitle) && (
@@ -367,65 +377,73 @@ export default function ShentuPreview() {
           </Section>
 
           {/* MINI HEALTH CARD */}
-          <Section title={healthTitle} subtitle="Попълнете празните полета, после ще се отвори пълният въпросник.">
-            <div className="max-w-6xl mx-auto">
-              <Card>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
-                  <Field label="Име на кучето"><Input value={(form.pet && form.pet.name) || ""} onChange={(e)=>setForm({...form, pet:{...(form.pet||{}), name:e.target.value}})} /></Field>
-                  <Field label="Порода"><Input value={(form.pet && form.pet.breed) || ""} onChange={(e)=>setForm({...form, pet:{...(form.pet||{}), breed:e.target.value}})} /></Field>
-                  <Field label="Възраст"><Input value={(form.pet && form.pet.age) || ""} onChange={(e)=>setForm({...form, pet:{...(form.pet||{}), age:e.target.value}})} /></Field>
-                  <Field label="Вашият имейл"><Input type="email" value={(form.owner && form.owner.email) || ""} onChange={(e)=>setForm({...form, owner:{...(form.owner||{}), email:e.target.value}})} placeholder="name@example.com"/></Field>
-                </div>
-                <div className="mt-3 flex items-start gap-2">
-                  <input id="consent-early" type="checkbox" checked={earlyConsent} onChange={(e)=>setEarlyConsent(!!e.target.checked)} />
-                  <label htmlFor="consent-early" className="text-xs text-[#5A544C]">Съгласявам се предоставените данни да бъдат обработвани за целите на услугата и за връзка с мен.</label>
-                </div>
-                <div className="mt-4">
-                  <Btn disabled={!earlyConsent} onClick={(e)=>{e.preventDefault(); if(!earlyConsent) return; setShowWizard(true); setStep(1); setTimeout(()=>{ if(wizardRef.current) wizardRef.current.scrollIntoView({behavior:'smooth'}); }, 50);}}>Продължете</Btn>
-                  {!earlyConsent && <div className="text-xs text-[#6E675F] mt-2">За да продължите, е нужно съгласие за обработка на данни.</div>}
-                </div>
-              </Card>
+<Section title={healthTitle} subtitle="Попълнете празните полета, после ще се отвори пълният въпросник.">
+  <div className="max-w-6xl mx-auto">
+    <Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
+        <Field label="Име на кучето">
+          <Input
+            value={form.pet.name}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                pet: { ...(prev.pet ?? DEFAULT_PET), name: e.target.value },
+              }))
+            }
+          />
+        </Field>
 
-              <Card className="mt-4 bg-gradient-to-br from-[#5F7F64] to-[#4b6d57] text-white ring-1 ring-[#5F7F64]/30">
-                <div className="text-sm">
-                  <p className="font-semibold">Искате да разберете повече за същността на вашето куче?</p>
-                  <ul className="list-disc pl-5 mt-2 space-y-1">
-                    <li>как възприема света и типичните му предпочитания (контакт, движение, почивка);</li>
-                    <li>ранни сигнали за <strong>заболявания</strong> или <strong>промени в поведението</strong>, за които да наблюдавате;</li>
-                    <li>базови насоки за грижа (ритъм, среда) и примерни идеи за хранене (основни протеини и зеленчуци).</li>
-                  </ul>
-                  <p className="mt-2 opacity-95">В края на въпросника ще видите резултата директно тук, а по желание може да получите копие и по имейл.</p>
-                </div>
-              </Card>
-            </div>
-          </Section>
+        <Field label="Порода">
+          <Input
+            value={form.pet.breed}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                pet: { ...(prev.pet ?? DEFAULT_PET), breed: e.target.value },
+              }))
+            }
+          />
+        </Field>
 
-          {/* WIZARD */}
-          {showWizard && (
-            <Section id="start" title="Индивидуален план – въпросник" subtitle="По една стъпка, без напрежение. Отворени отговори там, където е нужно да разкажете повече.">
-              <div ref={wizardRef} />
-              <Card>
-                {/* Steps header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="text-sm">Стъпка {step} от {total}</div>
-                  <div className="flex gap-2">
-                    {step>1 && <Btn variant="ghost" onClick={(e)=>{e.preventDefault(); back();}}>Назад</Btn>}
-                    {step<total && <Btn onClick={(e)=>{e.preventDefault(); next();}}>Продължете</Btn>}
-                  </div>
-                </div>
+        <Field label="Възраст">
+          <Input
+            value={form.pet.age}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                pet: { ...(prev.pet ?? DEFAULT_PET), age: e.target.value },
+              }))
+            }
+          />
+        </Field>
 
-                {/* Step content */}
-                <div className="grid gap-6">
-                  {step===1 && (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <Field label="Разкажете историята му">
-                        <Textarea rows={6} placeholder="Моменти, промени, навици, среда…" value={form.story||""} onChange={(e)=>setForm({...form, story:e.target.value})} />
-                      </Field>
-                      <Field label="Всекидневие (разходки, игра, сън)">
-                        <Textarea rows={6} placeholder="Как минава един типичен ден?" value={form.lifestyle||""} onChange={(e)=>setForm({...form, lifestyle:e.target.value})} />
-                      </Field>
-                    </div>
-                  )}
+        <Field label="Вашият имейл">
+          <Input
+            type="email"
+            value={form.owner.email}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                owner: { ...(prev.owner ?? DEFAULT_OWNER), email: e.target.value },
+              }))
+            }
+            placeholder="name@example.com"
+          />
+        </Field>
+      </div>
+
+      <div className="mt-3 flex items-start gap-2">
+        <input
+          id="consent-early"
+          type="checkbox"
+          checked={earlyConsent}
+          onChange={e => setEarlyConsent(!!e.target.checked)}
+        />
+        <label htmlFor="consent-early" className="text-xs text-[#5A544C]">
+          Съгласявам се предоставените данни да бъдат обработвани за целите на услугата и за връзка с мен.
+        </label>
+      </div>
+
 
                   {step===2 && (
                     <div className="grid gap-4">
